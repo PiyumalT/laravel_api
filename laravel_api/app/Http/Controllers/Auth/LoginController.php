@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 // use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 
 class LoginController extends Controller
@@ -16,14 +18,22 @@ class LoginController extends Controller
 {
     $this->validateLogin($request);
 
-    if (Auth::attempt($this->credentials($request))) {
-        $user = Auth::user();
-        // $user->generateToken();
+    // if (Auth::attempt($this->credentials($request))) {
+    //     $user = Auth::user();
+    //     // $user->generateToken();
 
+    //     return response()->json([
+    //         'data' => $user,
+    //     ]);
+    // }
+    $user= User::where('email', $request->email)->first();
+    if ($user &&  Hash::check($request->password, $user->password)) {
+        $user->generateToken();
         return response()->json([
             'data' => $user,
         ]);
     }
+
 
     return $this->sendFailedLoginResponse($request);
 }
